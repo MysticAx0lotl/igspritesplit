@@ -14,6 +14,14 @@ struct ImageFile
     std::string fileName;
 };
 
+struct atlasPos
+{
+    int x;
+    int y;
+    int h;
+    int w;
+}
+
 //adapted from https://stackoverflow.com/questions/5354459/c-how-to-get-the-image-size-of-a-png-file-in-directory
 ImageFile getImageDimensions(std::string file) { 
     std::ifstream in(file);
@@ -95,7 +103,6 @@ int splitSheet(int numToProcess, char *toProcess[])
 int mergeSheet(int numToProcess, char *toProcess[], int ssHeight, int ssWidth)
 {
     //adapted from https://www.cppstories.com/2019/04/dir-iterate/
-
     ImageAtlas master(false);
     Image tempImageStruct;
     tempImageStruct.alpha = "CHANNEL";
@@ -130,6 +137,8 @@ int mergeSheet(int numToProcess, char *toProcess[], int ssHeight, int ssWidth)
 
         ImageFile tempImageFile;
         Fragment tempFragment;
+        atlasPos trueDimensions;
+        std::vector<atlasPos> fragmentLocations;
 
         for(int i = 0; i < filesInFolder.size(); i++)
         {
@@ -166,12 +175,18 @@ int mergeSheet(int numToProcess, char *toProcess[], int ssHeight, int ssWidth)
                 return -1;               
             }
 
+            trueDimensions.x = currentXPos;
+            trueDimensions.y = currentYPos;
+            trueDimensions.w = tempImageFile.width;
+            trueDimensions.h = tempImageFile.height;
+
             tempFragment.x_short_1 = currentXPos/ssWidth;
             tempFragment.y_short_2 = currentYPos/ssHeight;
             tempFragment.w_short_3 = (currentXPos + tempImageFile.width)/ssWidth;
             tempFragment.h_short_4 = (currentYPos + tempImageFile.height)/ssHeight;
 
             tempImageStruct.FragmentArr.push_back(tempFragment);
+            fragmentLocations.push_back(trueDimensions);
 
 
             //actual spritesheet merging goes here
